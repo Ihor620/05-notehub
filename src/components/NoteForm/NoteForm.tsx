@@ -16,9 +16,11 @@ interface FormValues {
 }
 
 const schema = Yup.object<FormValues>({
-  title: Yup.string().min(3).max(50).required(),
-  content: Yup.string().max(500),
-  tag: Yup.mixed<NoteTag>().oneOf(["Todo","Work","Personal","Meeting","Shopping"]).required(),
+  title: Yup.string().min(3).max(50).required("Title is required"),
+  content: Yup.string().max(500, "Content must be at most 500 characters"),
+  tag: Yup.mixed<NoteTag>()
+    .oneOf(["Todo", "Work", "Personal", "Meeting", "Shopping"])
+    .required("Tag is required"),
 });
 
 export default function NoteForm({ onClose }: NoteFormProps) {
@@ -47,7 +49,12 @@ export default function NoteForm({ onClose }: NoteFormProps) {
 
         <div className={css.formGroup}>
           <label htmlFor="content">Content</label>
-          <Field as="textarea" id="content" name="content" className={css.textarea} />
+          <Field
+            as="textarea"
+            id="content"
+            name="content"
+            className={css.textarea}
+          />
           <ErrorMessage name="content" component="span" className={css.error} />
         </div>
 
@@ -64,7 +71,16 @@ export default function NoteForm({ onClose }: NoteFormProps) {
         </div>
 
         <div className={css.actions}>
-          <button type="submit" className={css.submitButton}>Create note</button>
+          <button
+            type="button"
+            className={css.cancelButton}
+            onClick={onClose}
+          >
+            Cancel
+          </button>
+          <button type="submit" className={css.submitButton}>
+            Create note
+          </button>
         </div>
       </Form>
     </Formik>

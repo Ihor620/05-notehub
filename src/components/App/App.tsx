@@ -15,8 +15,9 @@ export default function App() {
   const [isOpen, setIsOpen] = useState(false);
 
   const debouncedSearch = useDebouncedCallback((value: string) => {
-    setSearch(value);
-  }, 500);
+  setSearch(value);
+  setPage(1);
+}, 500);
 
   const { data, isLoading, isError } = useQuery({
     queryKey: ["notes", page, search],
@@ -31,6 +32,7 @@ export default function App() {
         {data?.totalPages && data.totalPages> 1 && (
           <Pagination
             pageCount={data.totalPages}
+            currentPage={page}
             onPageChange={setPage}
           />
         )}
