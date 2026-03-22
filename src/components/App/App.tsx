@@ -1,7 +1,6 @@
 import css from "./App.module.css";
 import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
-import type { UseQueryOptions } from "@tanstack/react-query";
+import { useQuery, type UseQueryOptions } from "@tanstack/react-query";
 import type { FetchNotesResponse } from "../../services/noteService";
 import { fetchNotes } from "../../services/noteService";
 import NoteList from "../NoteList/NoteList";
@@ -21,23 +20,26 @@ export default function App() {
     setPage(1);
   }, 500);
 
- const queryOptions: UseQueryOptions<FetchNotesResponse> = {
+  const queryOptions: UseQueryOptions<FetchNotesResponse, Error> = {
     queryKey: ["notes", page, search],
     queryFn: () => fetchNotes(page, search),
-    initialData: { notes: [], totalPages: 0 },
-    staleTime: 500, 
+    staleTime: 500,
+    placeholderData: { notes: [], totalPages: 0 },
   };
 
   const { data, isLoading, isError } = useQuery(queryOptions);
+
+  const notes = data?.notes ?? [];
+  const totalPages = data?.totalPages ?? 0;
 
   return (
     <div className={css.app}>
       <header className={css.toolbar}>
         <SearchBox onChange={debouncedSearch} />
 
-        {data?.totalPages && data.totalPages > 1 && (
+        {totalPages > 1 && (
           <Pagination
-            pageCount={data.totalPages}
+            pageCount={totalPages}
             currentPage={page}
             onPageChange={setPage}
           />
@@ -51,9 +53,7 @@ export default function App() {
       {isLoading && <p>Loading...</p>}
       {isError && <p>Error...</p>}
 
-      {data?.notes && data.notes.length > 0 && (
-        <NoteList notes={data.notes} />
-      )}
+      {notes.length > 0 && <NoteList notes={notes} />}
 
       {isOpen && (
         <Modal onClose={() => setIsOpen(false)}>
